@@ -1,0 +1,9 @@
+
+
+
+{
+    "errorOccured": {
+        "code": 500,
+        "message": "Something went wrong.Please try after sometime."
+      }
+}
