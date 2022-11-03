@@ -1,23 +1,21 @@
 import express from 'express';
-import { router } from './server/routes/routes';
-// import execQuery from './server/config/db'
+import { router } from './routes/routes';
 
+import * as dotenv from 'dotenv';
+const env = dotenv.config()
 
-// requireing path module...................
-const path = require('path')
+// require('ts-dotenv').config({ path: __dirname+'/.env' });
+
 
 // cross origin resource sharing............
-const cors = require('cors');
+import cors from 'cors'
 
 // morgan for logs............
-const morgan = require('morgan');
+import morgan from 'morgan';
 
 const app = express();
 
 const PORT = 4001; 
-
-// db connection.............
-// execQuery('select * from users',[]) 
 
 
 //parse json bodies...........
