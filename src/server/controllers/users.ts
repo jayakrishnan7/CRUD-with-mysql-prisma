@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import UserModel from "../models/users";
 
 import mysql from "mysql";
 // import execQuery from "../config/db";
@@ -32,63 +31,59 @@ const excelJS = require("exceljs");
 import { PrismaClient } from "@prisma/client";
 const { user } = new PrismaClient();
 
-// ....... all users fetching................................................................
-const allUsers = async (req: Request, res: Response) => {
-  // let skip = 0;
-  // let limit = 10;
-
-  const users = await user.findMany({
-    select: {
-      username: true,
-      // posts: true
-    },
-  });
-
-  // console.log('ussssssssssss', users);
-
-  res.json(users);
-};
-
 // .......  user  sign up   ....................
 const createPerson = async (req: Request, res: Response) => {
   try {
+    type createPersonInput = {
+      username: string;
+      classNumber: string;
+      email: string;
+      password: string;
+      phone: string;
+      dob: Date;
+      photo: string;
+      isDeleted: boolean;
+    };
+    const {
+      username,
+      classNumber,
+      email,
+      password,
+      phone,
+      dob,
+      photo,
+      isDeleted,
+    }: createPersonInput = req.body;
 
-    const {username} = req.body;
+    console.log("rr", req.body);
 
-    const userExists = await user.findUnique({
-      where : {
-        username
-      }, 
-      select: {
-        username: true
-      }
+    const userExists = await user.findFirst({
+      where: {
+        email,
+      },
     });
 
-    if(userExists) {
-
-      res.status(400).json({message: "user already exists" })
+    if (userExists) {
+      res.status(400).json({ message: "user already exists" });
     }
 
     const newUser = await user.create({
       data: {
-        username
-      }
-    })
+        username,
+        classNumber,
+        email,
+        password,
+        phone,
+        dob,
+        photo,
+        isDeleted,
+      },
+    });
 
-    console.log('NewUser registered', newUser);
-    
-    res.json(newUser)
+    console.log("NewUser registered", newUser);
 
+    res.json(newUser);
 
-
-
-
-
-
-
-
-
-    // console.log("rrrrrrrrrrr", req.body);
     // const { name, classNumber, email, password, phone, dob, photo, isDeleted } =
     //   req.body;
     // const pswd = req.body.password;
@@ -163,8 +158,29 @@ const createPerson = async (req: Request, res: Response) => {
     // //   // ------------------------------------------------------------------------------------------------------------------
     // // });
   } catch (error) {
-    console.log("errrrr", error);
-    res.send({ status: 0, error: error });
+    console.log(error);
+    res.status(400).json({ error });
+  }
+};
+
+// ....... all users fetching................................................................
+const allUsers = async (req: Request, res: Response) => {
+  // let skip = 0;
+  // let limit = 10;
+  try {
+    const users = await user.findMany({
+      select: {
+        username: true,
+        id: true,
+        // posts: true
+      },
+    });
+
+    // console.log('ussssssssssss', users);
+
+    res.json(users);
+  } catch (error) {
+    res.json(error);
   }
 };
 
@@ -172,76 +188,22 @@ const createPerson = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    // console.log('uuuuuuuuu', id);
+    console.log("uuuuuuuuu", typeof id);
 
-    // console.log("idsssssssss", req.body);
-
-    // let student = req.body;
-
-    // console.log('stttttttt', student);
-
-    const { name, classNumber, email, password, phone, dob, photo, isDeleted } =
-      req.body;
-
-    // console.log('eeeeeeeeeeeeeee', email);
-
-    // const userData = {
-    //   name: req.body.name,
-    //   classNumber: req.body.classNumber,
-    //   email: req.body.email,
-    //   password: req.body.password,
-    //   phone: req.body.phone,
-    //   dob: req.body.dob,
-    //   photo: req.body.photo,
-    //   isDeleted: req.body.isDeleted,
-    // };
-
-    // console.log('dddddddd', dob);
-    // console.log('tttttt', typeof(dob));
-
-    // const dateFormatting = moment.utc(dob, "DD/MM/YYYY").toDate();
-    // const newDate = moment.utc(dateFormatting).format('DD/MM/YYYY');
-
-    // var formatted = moment(dob).format("DD-MM-YYYY");
-    var formatted = moment(dob).format("YYYY-MM-DD");
-
-    console.log("newddddddd", formatted);
-    console.log("tyyyyyyy", typeof formatted);
-
-    const sql = `
-    UPDATE students 
-        SET name = "${name}", 
-        classNumber = "${classNumber}",  
-        email  = "${email}", 
-        password  = "${password}", 
-        phone  = "${phone}", 
-        dob   = "${formatted}", 
-        photo  = "${photo}", 
-        isDeleted = "${isDeleted}"
-
-        WHERE id = "${id}"
-       `;
-
-    // pool.query(
-    //   sql,
-    //   [name, classNumber, email, phone, dob, photo, isDeleted],
-    //   (err, result, fields) => {
-    //     if (err) {
-    //       res.send({ status: 0, data: err });
-    //     } else {
-    //       // result.forEach((element: any) => {
-    //       //   if(element.constructor == Array) {
-    //       //     res.send('Inserted student id:  ' + element[0].id)
-    //       //   }
-    //       // })
-    //       res.json({
-    //         message: "Updated successfully...",
-    //         status: 1,
-    //         data: result,
-    //       });
-    //     }
+    // const updatingUser = await user.update({
+    //   where: {
+    //     id
+    //   },
+    //   data: {
+    //     username
     //   }
-    // );
+    // })
+
+    res.json({
+      message: "Updated successfully...",
+      status: 1,
+      // data: updatingUser,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send("Updation failed!!");
@@ -255,21 +217,17 @@ const deletePerson = async (req: Request, res: Response) => {
 
     console.log("deeeelllllllll", id);
 
-    const sql = `
-      DELETE FROM students
-      WHERE id = "${id}"`;
-
-    // pool.query(sql, [id], (err, result, fields) => {
-    //   if (err) {
-    //     res.send({ status: 0, data: err });
-    //   } else {
-    //     res.json({
-    //       message: "Deleted successfully...",
-    //       status: 1,
-    //       data: result,
-    //     });
-    //   }
+    // const deleteUser = await user.delete({
+    //   where: {
+    //     id,
+    //   },
     // });
+
+    res.json({
+      message: "Deleted successfully...",
+      status: 1,
+      // data: deleteUser
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -289,28 +247,6 @@ const searchUsers = async (req: Request, res: Response) => {
     // let skip = userData.skip || 0;
     // let limit = userData.limit || 10;
 
-    let sql =
-      "SELECT * FROM students WHERE name LIKE '%" +
-      searchText +
-      "%' OR email LIKE '%" +
-      searchText +
-      "%' OR phone LIKE '%" +
-      searchText +
-      "%'";
-
-    // pool.query(sql, function (error, result) {
-    //   if (error) {
-    //     console.log(error);
-    //     res.send(error);
-    //   } else {
-    //     if (!result.length) {
-    //       res.json({ message: "No students with this details!!!", result });
-    //     } else {
-    //       // console.log('search result......', result);
-    //       res.json({ message: "search result of students", result });
-    //     }
-    //   }
-    // });
   } catch (error) {
     console.log("errorrrrrrr", error);
     res.status(500).send(error);
@@ -347,15 +283,7 @@ const exportUsers = async (req: Request, res: Response) => {
 
   let counter = 1;
 
-  const sql = `SELECT * FROM students WHERE dob >= '${fromDate}' AND dob <= '${lastDate}'`;
-
-  //   pool.query(sql, function (error, result) {
-  //     if (error) {
-  //       console.log(error);
-  //       // res.send(error)
-  //     } else {
-  //       // console.log("rrrrrrrrrrrrrr", result);
-
+ 
   //       if (Array.isArray(result)) {
   //         result.forEach((student) => {
   //           student.classNumber = counter;
@@ -442,7 +370,7 @@ const exportUsers = async (req: Request, res: Response) => {
 //   );
 // });
 
-// Uploading files with multer    ................................
+// Uploading files using multer    ................................
 const uploadFiles = async (req: Request, res: Response) => {
   try {
     // console.log('fffffffffff',req.file);

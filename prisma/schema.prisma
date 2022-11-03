@@ -14,16 +14,12 @@ model User {
   @@map(name: "user")
   id Int @default(autoincrement()) @id
   username String @db.VarChar(255) @unique
-  posts Post[]
+  classNumber String 
+  email String @unique
+  password String
+  phone String
+  dob DateTime
+  photo String
+  isDeleted Boolean
 }    
 
-model Post {
-  @@map(name: "post")
-  id Int @id @default(autoincrement())
-  title String
-  post String @db.VarChar(500)
-  created_at DateTime @default(now())
-  update_at DateTime @updatedAt
-  user User @relation(fields: [user_id], references: [id])
-  user_id Int
-}
