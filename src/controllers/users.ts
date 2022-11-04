@@ -6,11 +6,81 @@ import CryptoJS from "crypto-js";
 // date formatting..........
 import moment from "moment";
 
+// importing typeORM prisma...........
 import { PrismaClient } from "@prisma/client";
 const { user } = new PrismaClient();
 
-import * as dotenv from 'dotenv';
-dotenv.config()
+// environment variables........
+import * as dotenv from "dotenv";
+dotenv.config();
+
+// jwt configurations............
+import jwt from "jsonwebtoken";
+
+const maxAge = 0 * 23 * 59 * 59;
+
+const secKey = process.env.JWT_KEY as string;
+
+const createToken = (id: any) => {
+  return jwt.sign({ id }, secKey, {
+    expiresIn: maxAge,
+  });
+};
+
+// .......  user  login   ....................
+
+const loginUser = async (req: Request, res: Response) => {
+  // console.log('reaaaaaaaaaaaaaaaaa');
+  try {
+    const { email, password } = req.body;
+    // console.log('wwwwwwwww', email, password);
+
+    if (email == undefined || password == undefined) {
+      res.status(500).send({ error: "Authentication failed..!!" });
+    }
+
+    const checkUser = await user.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    if (checkUser) {
+      const dbPassword = checkUser.password;
+
+      // console.log('db hashed password', dbPassword);
+      // console.log('postmanSendingPassword', password);
+
+      const keysec = process.env.ENCRYPTION_KEY as string;
+
+      var bytes = CryptoJS.AES.decrypt(dbPassword, keysec);
+
+      var originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+      // console.log('rrrrrrr', originalText);
+
+      if (originalText == password) {
+        const token = createToken(email);
+        console.log("token created......", token);
+
+        res.cookie("jwt", token, {
+          httpOnly: false,
+          maxAge: maxAge * 1000,
+        });
+        res.json({ message: "User login successful" }); 
+      } else {
+        console.log("Password authentication failed.");
+
+        res.status(500).send({ error: "Authentication failed!!" });
+      }
+    } else { 
+      console.log("Invalid credentials. User not found!!");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+};
 
 // .......  user  sign up   ....................
 const createPerson = async (req: Request, res: Response) => {
@@ -49,10 +119,9 @@ const createPerson = async (req: Request, res: Response) => {
     } else {
       // password encryption...........................
       let keysec = process.env.ENCRYPTION_KEY as string;
-      var ciphertext = CryptoJS.AES.encrypt(
-        password,
-        keysec
-      ).toString();
+
+      var ciphertext = CryptoJS.AES.encrypt(password, keysec).toString();
+
       console.log("encrypted text ....... cipherrrrrr", ciphertext);
 
       // date format changing from string to date.......
@@ -115,7 +184,7 @@ const allUsers = async (req: Request, res: Response) => {
 
     const count = await user.aggregate({
       _count: {
-        email: true
+        email: true,
       },
     });
 
@@ -123,7 +192,6 @@ const allUsers = async (req: Request, res: Response) => {
 
     // console.log('ussssssssssss', count._count.email);
     res.json({ totalUsers, users });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
@@ -134,7 +202,8 @@ const allUsers = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const { username, classNumber, email, password, phone, dob, photo } = req.body;
+    const { username, classNumber, email, password, phone, dob, photo } =
+      req.body;
 
     // console.log("qqqqqqqqq", req.body);
 
@@ -216,11 +285,4 @@ const deletePerson = async (req: Request, res: Response) => {
   }
 };
 
-
-export {
-  allUsers,
-  createPerson,
-  updateUser,
-  deletePerson,
-
-};
+export { allUsers, createPerson, updateUser, deletePerson, loginUser };

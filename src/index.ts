@@ -1,11 +1,12 @@
 import express from 'express';
 import { router } from './routes/routes';
 
+// env configuration.............
 import * as dotenv from 'dotenv';
 const env = dotenv.config()
 
-// require('ts-dotenv').config({ path: __dirname+'/.env' });
-
+// jwt setup.........
+import jwt from 'jsonwebtoken';
 
 // cross origin resource sharing............
 import cors from 'cors'
