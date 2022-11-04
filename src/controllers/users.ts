@@ -201,8 +201,7 @@ const allUsers = async (req: Request, res: Response) => {
 // ....... edit user....................
 const updateUser = async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
-    const { username, classNumber, email, password, phone, dob, photo } =
+    const { id, username, classNumber, email, password, phone, dob, photo } =
       req.body;
 
     // console.log("qqqqqqqqq", req.body);

@@ -12,13 +12,12 @@ const router = express.Router();
 
 router.post("/register", createPerson);
 
-router.put("/updateUser/:id", updateUser);
+router.put("/updateUser", updateUser);
 
 router.delete("/delete/:id", deletePerson);
 
-router.post("/login", loginUser)
+router.post("/login", loginUser);
 
 router.get("/", allUsers);
-
 
 export { router };
