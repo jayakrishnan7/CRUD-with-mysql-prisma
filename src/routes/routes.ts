@@ -8,16 +8,18 @@ import {
   loginUser,
 } from "../controllers/users";
 
+import { validateToken, getSessionInfo } from "../middlewares/auth";
+
 const router = express.Router();
 
 router.post("/register", createPerson);
 
-router.put("/updateUser", updateUser);
+router.put("/updateUser", validateToken ,getSessionInfo, updateUser);
 
-router.delete("/delete/:id", deletePerson);
+router.delete("/delete/:id", validateToken, getSessionInfo, deletePerson);
 
 router.post("/login", loginUser);
 
-router.get("/", allUsers);
+router.get("/", validateToken, getSessionInfo, allUsers);
 
 export { router };

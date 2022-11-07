@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 
+import { getAccessToken } from "../controllers/jwt";
+
 //importing crypto module to generate random binary data
 import CryptoJS from "crypto-js";
 
@@ -14,18 +16,8 @@ const { user } = new PrismaClient();
 import * as dotenv from "dotenv";
 dotenv.config();
 
-// jwt configurations............
-import jwt from "jsonwebtoken";
 
-const maxAge = 0 * 23 * 59 * 59;
 
-const secKey = process.env.JWT_KEY as string;
-
-const createToken = (id: any) => {
-  return jwt.sign({ id }, secKey, {
-    expiresIn: maxAge,
-  });
-};
 
 // .......  user  login   ....................
 
@@ -45,7 +37,9 @@ const loginUser = async (req: Request, res: Response) => {
       },
     });
 
-    if (checkUser) {
+    if (checkUser == null) {
+      res.send("No records found!!");
+    } else if (checkUser) {
       const dbPassword = checkUser.password;
 
       // console.log('db hashed password', dbPassword);
@@ -60,20 +54,22 @@ const loginUser = async (req: Request, res: Response) => {
       // console.log('rrrrrrr', originalText);
 
       if (originalText == password) {
-        const token = createToken(email);
-        console.log("token created......", token);
+        
+        let accessToken = await getAccessToken({ email: email, userId: checkUser!.id });
+        
+        // console.log('aaaaaaaaaa', accessToken);
 
-        res.cookie("jwt", token, {
-          httpOnly: false,
-          maxAge: maxAge * 1000,
+        res.send({
+          userId: checkUser!.id,
+          message: "User logged in successfully",
+          accessToken: accessToken,
         });
-        res.json({ message: "token created" }); 
       } else {
         console.log("Password authentication failed.");
 
         res.status(500).send({ error: "Authentication failed!!" });
       }
-    } else { 
+    } else {
       console.log("Invalid credentials. User not found!!");
     }
   } catch (error) {
@@ -169,6 +165,8 @@ const createPerson = async (req: Request, res: Response) => {
 const allUsers = async (req: Request, res: Response) => {
   // let skip = 0;
   // let limit = 10;
+  console.log('middlllllllll', req.body);
+  
   try {
     const users = await user.findMany({
       select: {
@@ -284,4 +282,4 @@ const deletePerson = async (req: Request, res: Response) => {
   }
 };
 
-export { allUsers, createPerson, updateUser, deletePerson, loginUser };
+export { allUsers, createPerson, updateUser, deletePerson, loginUser, user };
