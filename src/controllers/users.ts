@@ -67,7 +67,7 @@ const loginUser = async (req: Request, res: Response) => {
           httpOnly: false,
           maxAge: maxAge * 1000,
         });
-        res.json({ message: "User login successful" }); 
+        res.json({ message: "token created" }); 
       } else {
         console.log("Password authentication failed.");
 
