@@ -39,7 +39,7 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
 
 }
 
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext' ;
 
 
 export const getSessionInfo = async (req: Request, res: Response, next: NextFunction) => {
