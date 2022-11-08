@@ -167,9 +167,11 @@ const createPerson = async (req: Request, res: Response) => {
 const allUsers = async (req: Request, res: Response) => {
   // let skip = 0;
   // let limit = 10;
-  console.log("middlllllllll", req.body);
 
   try {
+    const obj = (req as any).sessionObj;
+    console.log("session data", obj);
+
     const users = await user.findMany({
       select: {
         username: true,
@@ -201,6 +203,9 @@ const allUsers = async (req: Request, res: Response) => {
 // ....... edit user....................
 const updateUser = async (req: Request, res: Response) => {
   try {
+    const obj = (req as any).sessionObj;
+    console.log("session data", obj);
+
     const { id, username, classNumber, email, password, phone, dob, photo } =
       req.body;
 
@@ -259,6 +264,9 @@ const updateUser = async (req: Request, res: Response) => {
 // ....... soft delete user...................
 const deletePerson = async (req: Request, res: Response) => {
   try {
+    const obj = (req as any).sessionObj;
+    console.log("session data", obj);
+
     const id = req.params.id;
 
     const newId = parseInt(id);
@@ -286,18 +294,16 @@ const deletePerson = async (req: Request, res: Response) => {
 
 // ....... html to pdf conversion...................
 const htmlToPdfConversion = async (req: Request, res: Response) => {
+  console.log("htmlPdfController.......");
 
-  console.log('htmlPdfController.......');
-  
-  const options : any = { format: "A4" };
+  const options: any = { format: "A4" };
 
   const file = [{ url: "https://example.com", name: "example.pdf" }];
 
-  htmlPdf.generatePdfs(file, options).then( pdfBuffer => {
+  htmlPdf.generatePdfs(file, options).then((pdfBuffer) => {
     console.log("PDF Buffer:-", pdfBuffer); // PDF Buffer:- [{url: "https://example.com", name: "example.pdf", buffer: <PDF buffer>}]
-  })
+  });
 };
-
 
 export {
   allUsers,

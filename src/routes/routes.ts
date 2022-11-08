@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/register", createPerson);
 
-router.put("/updateUser", validateToken ,getSessionInfo, updateUser);
+router.put("/updateUser", validateToken, getSessionInfo, updateUser);
 
 router.delete("/delete/:id", validateToken, getSessionInfo, deletePerson);
 

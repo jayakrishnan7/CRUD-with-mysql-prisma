@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
+import { user } from "../controllers/users";
+
 const jwtSecretString: string = process.env.JWT_ACCESS_SECRET!;
 
 export const validateToken = async (
@@ -41,24 +43,44 @@ export const validateToken = async (
 // import { request } from "http";
 
 export const getSessionInfo = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    let token: string | null = req.headers.authorization!;
- 
-    function parseJwt(token: any) {
-      return JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-    }
+    let token: string = req.headers.authorization!;
 
-    const decodedToken = parseJwt(token);
+    const decodedToken = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString()
+    );
 
     // req.sessionObj =  decodedToken
 
     console.log("deeeeeeeee", decodedToken);
+    const email = decodedToken.email;
 
-    // request.myData;
+    const userDetails = await user.findFirst({
+        where: {
+            email
+        }
+    })
+
+    console.log('detailsssssss', userDetails);
+
+    const data = {
+        id: userDetails?.id,
+        username: userDetails?.username,
+        classNumber: userDetails?.classNumber,
+        email: userDetails?.email,
+        phone: userDetails?.phone,
+        dob: userDetails?.dob,
+        isDeleted: userDetails?.isDeleted,
+
+    }
+
+    console.log('filtered data from token', data);
+    
+    req.sessionObj = data;
 
     next();
   } catch (error) {
@@ -66,4 +88,3 @@ export const getSessionInfo = async (
     res.send("Access token invalid or expired!");
   }
 };
-
