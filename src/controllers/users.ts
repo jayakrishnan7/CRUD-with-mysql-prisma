@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 
+// html file to pdf conversion tool.........
+import htmlPdf from "html-pdf-node-ts";
+
 import { getAccessToken } from "../controllers/jwt";
 
 //importing crypto module to generate random binary data
@@ -15,9 +18,6 @@ const { user } = new PrismaClient();
 // environment variables........
 import * as dotenv from "dotenv";
 dotenv.config();
-
-
-
 
 // .......  user  login   ....................
 
@@ -54,9 +54,11 @@ const loginUser = async (req: Request, res: Response) => {
       // console.log('rrrrrrr', originalText);
 
       if (originalText == password) {
-        
-        let accessToken = await getAccessToken({ email: email, userId: checkUser!.id });
-        
+        let accessToken = await getAccessToken({
+          email: email,
+          userId: checkUser!.id,
+        });
+
         // console.log('aaaaaaaaaa', accessToken);
 
         res.send({
@@ -165,8 +167,8 @@ const createPerson = async (req: Request, res: Response) => {
 const allUsers = async (req: Request, res: Response) => {
   // let skip = 0;
   // let limit = 10;
-  console.log('middlllllllll', req.body);
-  
+  console.log("middlllllllll", req.body);
+
   try {
     const users = await user.findMany({
       select: {
@@ -282,4 +284,27 @@ const deletePerson = async (req: Request, res: Response) => {
   }
 };
 
-export { allUsers, createPerson, updateUser, deletePerson, loginUser, user };
+// ....... html to pdf conversion...................
+const htmlToPdfConversion = async (req: Request, res: Response) => {
+
+  console.log('htmlPdfController.......');
+  
+  const options : any = { format: "A4" };
+
+  const file = [{ url: "https://example.com", name: "example.pdf" }];
+
+  htmlPdf.generatePdfs(file, options).then( pdfBuffer => {
+    console.log("PDF Buffer:-", pdfBuffer); // PDF Buffer:- [{url: "https://example.com", name: "example.pdf", buffer: <PDF buffer>}]
+  })
+};
+
+
+export {
+  allUsers,
+  createPerson,
+  updateUser,
+  deletePerson,
+  loginUser,
+  user,
+  htmlToPdfConversion,
+};
