@@ -21,3 +21,7 @@ export const getAccessToken = (payload: any): Promise<string> => {
 
     })
 }
+
+export const demo = () => {
+    return "I created dev branch to test git";
+}
